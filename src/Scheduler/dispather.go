@@ -29,5 +29,11 @@ func InitData(s *SpiderDispther) {
 		queue.Push(url)
 	}
 
+	wait := queue.Pull(50)
+
+	for _, w := range wait {
+
+	}
 
 }
+
