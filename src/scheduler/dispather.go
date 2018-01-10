@@ -1,10 +1,11 @@
-package Scheduler
+package scheduler
 
 import (
 	"sync"
 	"runtime"
 	"SanpotelSpider/src/queue"
 	"SanpotelSpider/src/kvdata"
+	"SanpotelSpider/src/downloader"
 )
 
 type SpiderDispther struct {
@@ -26,13 +27,14 @@ func InitData(s *SpiderDispther) {
 	//2、从待爬取表中获取URL，并放入队列
 	urls := kvdata.GetUrlForWaitUrl(100)
 	for _, url := range urls {
-		queue.Push(url)
+		s := string(url)
+		queue.Push(s)
 	}
 
 	wait := queue.Pull(50)
 
 	for _, w := range wait {
-
+		go Downloader.Parser(w.(string))
 	}
 
 }

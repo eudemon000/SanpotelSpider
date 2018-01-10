@@ -49,6 +49,7 @@ func AddUrlToWaitUrl(url string) bool {
 	mk := utils.Md5(url)
 	key := []byte(mk)
 	s := waitUrl.Get(key)
+	fmt.Println("s===>", string(s))
 	if s == nil {
 		err := waitUrl.Set(key, []byte(url))
 		if err != nil {
