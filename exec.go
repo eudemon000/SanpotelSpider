@@ -29,8 +29,8 @@ func main() {
 	 kvdata.GetUrlForWaitUrl(100)*/
 	 s := new(scheduler.SpiderDispther)
 	 s.Start_urls = make([]string, 10)
-	 s.Start_urls[0] = "http://www.99.com.cn"
-	 s.Start_urls[1] = "http://www.qq.com"
+	 s.Start_urls[0] = "http://www.99.com.cn/"
+	 s.Start_urls[1] = "http://www.qq.com/"
 	s.Start_urls[2] = "https://www.baidu.com/"
 	s.Start_urls[3] = "https://www.17173.com/"
 	s.Start_urls[4] = "http://www.duowan.com/"

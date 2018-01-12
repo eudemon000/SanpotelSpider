@@ -13,11 +13,11 @@ var cUrl string
 //var searchKeyword = "肿瘤"
 var searchKeyword = "瘤"
 
-func Parser(url string) []string {
+func Parser(url string, urls chan interface{}) {
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println(err)
-		return []string{}
+		return
 	}
 	//cUrl = url
 	cUrl = doc.Url.String()
@@ -32,13 +32,6 @@ func Parser(url string) []string {
 	//获取页面的关键词，根据编码进行编码转换，并保存到数据库
 	keyword := checkTag(metaTag, webCharset)
 	fmt.Println("转码后===》", keyword)
-	//md5 := utils.Md5(url)
-	//urlId := Database.InsertUrls(url, md5, "YES", "1")
-	//fmt.Println("url表id", urlId)
-	/*if urlId > 0 {
-		//从待爬取表里删除
-		Database.RemoveWaitUrl(url)
-	}*/
 
 	//获取接下来需要爬取的URL，放入队列中
 	bodyTag := doc.Find("body")
@@ -46,8 +39,9 @@ func Parser(url string) []string {
 	var resultUrl []string
 	bodyTag.Each(func(i int, bodySelect *goquery.Selection) {
 		resultUrl = findUrls(bodySelect)
+		//fmt.Println(resultUrl)
 	})
-	return resultUrl
+	urls <- resultUrl
 }
 
 //检查页面的编码类型
