@@ -29,20 +29,12 @@ func main() {
 	 kvdata.GetUrlForWaitUrl(100)*/
 	 s := new(scheduler.SpiderDispther)
 	 s.Start_urls = make([]string, 1)
-	 //s.Start_urls[0] = "http://www.99.com.cn/"
-	s.Start_urls[0] = "http://www.qq.com/"
- /*s.Start_urls[2] = "https://www.baidu.com/"
-   s.Start_urls[3] = "https://www.17173.com/"
-   s.Start_urls[4] = "http://www.duowan.com/"
-   s.Start_urls[5] = "https://www.taobao.com/"
-   s.Start_urls[6] = "https://www.jd.com/"
-   s.Start_urls[7] = "http://www.sohu.com/"
-   s.Start_urls[8] = "http://www.sina.com.cn/"
-   s.Start_urls[9] = "https://www.263.net/"*/
+	 s.Start_urls[0] = "http://www.99.com.cn/"
+	//s.Start_urls[0] = "http://www.qq.com/"
 	 s.Allowed_domains = make([]string, 1)
 	 s.Allowed_domains[0] = "99.com.cn"
 	 scheduler.InitData(s)
-	 var ch chan int
+	 ch := make(chan int)
 	 ch <- 1
 }
 

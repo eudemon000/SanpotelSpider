@@ -38,6 +38,7 @@ func Pull(max int) []interface{} {
 		if i > 0 {
 			value := v.Value
 			l = append(l, value)
+			q.list.Remove(v)
 		}
 		i--
 	}

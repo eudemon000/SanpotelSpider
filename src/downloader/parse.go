@@ -9,6 +9,7 @@ import (
 
 	"SanpotelSpider/src/elast"
 	"SanpotelSpider/src/utils"
+	"time"
 )
 
 var cUrl string
@@ -22,6 +23,7 @@ type NextUrl struct {
 var searchKeyword = "瘤"
 
 func Parser(url string, urls chan interface{}) {
+	time.Sleep(time.Microsecond * 500)
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println(err)
