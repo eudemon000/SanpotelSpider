@@ -6,9 +6,17 @@ import (
 	"regexp"
 	"github.com/PuerkitoBio/goquery"
 	"pholcus/common/mahonia"
+
+	"SanpotelSpider/src/elast"
+	"SanpotelSpider/src/utils"
 )
 
 var cUrl string
+
+type NextUrl struct {
+	FinishUrl	string
+	ResultUrl	[]string
+}
 
 //var searchKeyword = "肿瘤"
 var searchKeyword = "瘤"
@@ -21,6 +29,7 @@ func Parser(url string, urls chan interface{}) {
 	}
 	//cUrl = url
 	cUrl = doc.Url.String()
+	fmt.Println(cUrl)
 	var webCharset string
 	headTag := doc.Find("head")
 	metaTag := headTag.Find("meta")
@@ -28,20 +37,25 @@ func Parser(url string, urls chan interface{}) {
 	//获取标题
 	titleTag := headTag.Find("title")
 	title := strings.Trim(formatStr(titleTag.Text(), webCharset), "")
-	fmt.Println("标题===>", title)
+	//fmt.Println("标题===>", title)
 	//获取页面的关键词，根据编码进行编码转换，并保存到数据库
 	keyword := checkTag(metaTag, webCharset)
-	fmt.Println("转码后===》", keyword)
+	//fmt.Println("转码后===》", keyword)
 
 	//获取接下来需要爬取的URL，放入队列中
 	bodyTag := doc.Find("body")
 	//var resultUrl list.List
 	var resultUrl []string
+	md5 := utils.Md5(url)
+	sendElast(title, keyword, keyword, cUrl, md5)
 	bodyTag.Each(func(i int, bodySelect *goquery.Selection) {
 		resultUrl = findUrls(bodySelect)
 		//fmt.Println(resultUrl)
 	})
-	urls <- resultUrl
+	r := NextUrl{}
+	r.ResultUrl = resultUrl
+	r.FinishUrl = url
+	urls <- r
 }
 
 //检查页面的编码类型
@@ -86,7 +100,7 @@ func checkTag(sele *goquery.Selection, webCharset string) string {
 				//fmt.Println(content)
 				tag = formatStr(content, webCharset)
 				//tag = content
-				fmt.Println("content===>", content)
+				//fmt.Println("content===>", content)
 				/*if content != "" {
 					content = formatStr(content, webCharset)
 					err := sqlConn.InsertTag(content, url)
@@ -197,7 +211,7 @@ func Format(str string) (result string, ok bool) {
 	return "", false
 }
 
-/*func sendElast(title, keyword, description, url, md5 string) {
+func sendElast(title, keyword, description, url, md5 string) {
 	//if strings.Contains(title, searchKeyword) || strings.Contains(keyword, searchKeyword) || strings.Contains(description, searchKeyword) {
 		fmt.Println("有匹配的")
 		all := new(elast.AllSearch)
@@ -210,4 +224,4 @@ func Format(str string) (result string, ok bool) {
 		elast.SendElast(all, text)
 	//}
 
-}*/
+}
