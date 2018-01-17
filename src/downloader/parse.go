@@ -6,10 +6,10 @@ import (
 	"regexp"
 	"github.com/PuerkitoBio/goquery"
 	"pholcus/common/mahonia"
-
 	"SanpotelSpider/src/elast"
 	"SanpotelSpider/src/utils"
 	"time"
+	"net/http"
 )
 
 var cUrl string
@@ -23,8 +23,22 @@ type NextUrl struct {
 var searchKeyword = "瘤"
 
 func Parser(url string, urls chan interface{}) {
-	time.Sleep(time.Microsecond * 500)
-	doc, err := goquery.NewDocument(url)
+	//time.Sleep(time.Microsecond * 500)
+	//fmt.Println("当前要爬取的URL===>", url)
+	c := http.Client{
+		Timeout : 5 * time.Second,
+	}
+
+	resp, _ := c.Get(url)
+	if resp == nil {
+		next := NextUrl{}
+		next.ResultUrl = []string{}
+		next.FinishUrl = url
+		urls <- next
+		return
+	}
+	doc, err := goquery.NewDocumentFromResponse(resp)
+	//doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -54,6 +68,9 @@ func Parser(url string, urls chan interface{}) {
 		resultUrl = findUrls(bodySelect)
 		//fmt.Println(resultUrl)
 	})
+	/*for _, a := range resultUrl {
+		fmt.Println("分析出的URL===>", a)
+	}*/
 	r := NextUrl{}
 	r.ResultUrl = resultUrl
 	r.FinishUrl = url

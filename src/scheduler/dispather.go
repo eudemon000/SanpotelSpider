@@ -8,6 +8,7 @@ import (
 	"SanpotelSpider/src/downloader"
 	"fmt"
 	"time"
+	"strings"
 )
 
 var num int = 50
@@ -31,7 +32,12 @@ func InitData(s *SpiderDispther) {
 
 	//1、将入口URL放入待爬取表
 	for _, data := range sDispther.Start_urls {
-		kvdata.AddUrlToWaitUrl(data)
+		for _, a := range sDispther.Allowed_domains {
+			if strings.Contains(data, a) {
+				kvdata.AddUrlToWaitUrl(data)
+			}
+		}
+
 	}
 	//time.Sleep(time.Second * 5)
 	//2、开启一个协程从待爬取表中获取URL，并放入队列
@@ -47,7 +53,10 @@ func getTaskForDb(num int) {
 		urls := kvdata.GetUrlForWaitUrl(num)
 		for _, url := range urls {
 			s := string(url)
-			fmt.Println("取出的", s)
+			if !strings.HasPrefix(s, "http") {
+				fmt.Println("aaa")
+			}
+			//fmt.Println("取出的", s)
 			queue.Push(s)
 		}
 		//每次取出数据后，需要等到所有任务爬取完毕后，再进行下次任务
@@ -66,11 +75,20 @@ func getTaskForQueue(num int) {
 		} else {
 			n = num
 		}
+
+		for _, aaa := range wait {
+			fmt.Println("-------------------------")
+			fmt.Println(aaa, "length===>", len(aaa.(string)))
+			fmt.Println("*************************")
+		}
+
 		//var chUrls chan [num]interface{}
 		chUrls := make([] chan interface{}, n)
 		for index, url := range wait {
 			chUrls[index] = make(chan interface{})
+			//u := url.(string)
 			go Downloader.Parser(url.(string), chUrls[index])
+
 		}
 
 		for _, c := range chUrls {
@@ -80,7 +98,14 @@ func getTaskForQueue(num int) {
 			kvdata.AddUrlToFinishedUrl(fUrl)
 			kvdata.RemoveForWaitUrl(fUrl)
 			for _, u := range a.(Downloader.NextUrl).ResultUrl {
-				kvdata.AddUrlToWaitUrl(u)
+				//fmt.Println("u===>", u)
+				for _, a := range sDispther.Allowed_domains {
+					if strings.Contains(u, a) && strings.HasPrefix(u, "http") {
+						kvdata.AddUrlToWaitUrl(u)
+					}
+				}
+
+				//kvdata.AddUrlToWaitUrl(u)
 				//fmt.Println("已经插入表的URL：", u)
 			}
 		}

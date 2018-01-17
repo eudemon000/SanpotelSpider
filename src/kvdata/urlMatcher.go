@@ -39,12 +39,14 @@ func CheckFinishedUrl(url string) bool {
 	fDB.lock.Lock()
 	defer fDB.lock.Unlock()
 	key := utils.Md5(url)
+	//key := url
 	s := fDB.finishedUrl.Get([]byte(key))
 	if s == nil {
-		fmt.Println("s空")
+		//fmt.Println("s空")
 		return false
 	} else {
-		fmt.Println("s不空")
+		//fmt.Println("s不空")
+		fmt.Println(url, "===>已经爬取过了")
 		return true
 	}
 }
@@ -54,6 +56,7 @@ func AddUrlToFinishedUrl(url string) bool {
 	fDB.lock.Lock()
 	defer fDB.lock.Unlock()
 	key := utils.Md5(url)
+	//key := url
 	value := "true"
 	err := fDB.finishedUrl.Set([]byte(key), []byte(value))
 	if err != nil {
@@ -68,16 +71,28 @@ func AddUrlToFinishedUrl(url string) bool {
 func AddUrlToWaitUrl(url string) bool {
 	//mk := utils.Md5(url)
 	//fmt.Println("要插入的URL：", url)
+
+	isFinished := CheckFinishedUrl(url)
+	if isFinished {
+		return false
+	}
+
 	wDB.lock.Lock()
-	wDB.lock.Unlock()
+	defer wDB.lock.Unlock()
 	if len(url) == 0 || url == " " {
 		return false
 	}
 	mk := utils.Md5(url)
+	//mk := url
 	key := []byte(mk)
 	s := wDB.waitUrl.Get(key)
 	//fmt.Println("s===>", string(s))
 	if s == nil {
+		if url == "http://js.99.com.cn/zengji/" {
+			fmt.Println("aaa")
+		}
+		x := []byte(url)
+		fmt.Println(x)
 		err := wDB.waitUrl.Set(key, []byte(url))
 		if err != nil {
 			fmt.Println(err)
@@ -91,18 +106,28 @@ func AddUrlToWaitUrl(url string) bool {
 }
 
 //从待爬取表获取URL
-func GetUrlForWaitUrl(max int) map[string][]byte {
+//func GetUrlForWaitUrl(max int) map[string][]byte {
+func GetUrlForWaitUrl(max int) []string {
 	wDB.lock.Lock()
 	defer wDB.lock.Unlock()
 	result := wDB.waitUrl.Items(max)
-	return result
+	r := make([]string, 0)
+	for _, v := range result {
+		if len(v) != 0 {
+			s := string(v)
+			r = append(r, s)
+		}
+
+	}
+	return r
 }
 
 //从待爬取表中删除已经爬取完成的URL
 func RemoveForWaitUrl(url string) {
 	wDB.lock.Lock()
 	defer wDB.lock.Unlock()
-	key := utils.Md5(url)
+	//key := utils.Md5(url)
+	key := url
 	wDB.waitUrl.Remove([]byte(key))
 }
 

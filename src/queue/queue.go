@@ -2,13 +2,14 @@ package queue
 
 import (
 	"container/list"
+	"fmt"
 )
 
 //队列
 type msgQueen struct {
-	list	*list.List		//队列
-	count	int				//每次取出多少队列内容
-	ch chan int
+	list  *list.List //队列
+	count int        //每次取出多少队列内容
+	ch    chan int
 }
 
 var q *msgQueen
@@ -27,7 +28,7 @@ func Push(data interface{}) {
 func Pull(max int) []interface{} {
 	//q.ch <- 0
 	num := q.list.Len()
-	if max < num {	//如果当前获取的数据大于队列的长度，则获取最大数为队列的长度
+	if max < num { //如果当前获取的数据大于队列的长度，则获取最大数为队列的长度
 		num = max
 	}
 	q.count = num
@@ -37,10 +38,12 @@ func Pull(max int) []interface{} {
 	for v := q.list.Front(); v != nil && i > 0; v = v.Next() {
 		if i > 0 {
 			value := v.Value
+			fmt.Println("value===>", value)
 			l = append(l, value)
 			q.list.Remove(v)
 		}
 		i--
 	}
+	fmt.Println(l)
 	return l
 }
