@@ -7,11 +7,16 @@ import (
 	"SanpotelSpider/src/kvdata"
 	"strconv"
 	"gotest/src/dis"*/
+	"net/http"
+	_"net/http/pprof"
 )
 
 //爬虫入口
 func main() {
 	fmt.Println("这是程序入口")
+	go func() {
+		http.ListenAndServe("localhost:6060", nil)
+	}()
 	/*for i := 0; i < 100; i++ {
 		queue.Push(i)
 		fmt.Println("向队列插入", i)

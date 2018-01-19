@@ -37,6 +37,7 @@ func init() {
 //检查URL是否已经爬取过
 func CheckFinishedUrl(url string) bool {
 	fDB.lock.Lock()
+	defer fDB.finishedUrl.Close()
 	defer fDB.lock.Unlock()
 	key := utils.Md5(url)
 	//key := url
@@ -54,6 +55,7 @@ func CheckFinishedUrl(url string) bool {
 //向已爬取表插入URL
 func AddUrlToFinishedUrl(url string) bool {
 	fDB.lock.Lock()
+	defer fDB.finishedUrl.Close()
 	defer fDB.lock.Unlock()
 	key := utils.Md5(url)
 	//key := url
@@ -78,6 +80,7 @@ func AddUrlToWaitUrl(url string) bool {
 	}
 
 	wDB.lock.Lock()
+	defer wDB.waitUrl.Close()
 	defer wDB.lock.Unlock()
 	if len(url) == 0 || url == " " {
 		return false
@@ -109,6 +112,7 @@ func AddUrlToWaitUrl(url string) bool {
 //func GetUrlForWaitUrl(max int) map[string][]byte {
 func GetUrlForWaitUrl(max int) []string {
 	wDB.lock.Lock()
+	defer wDB.waitUrl.Close()
 	defer wDB.lock.Unlock()
 	result := wDB.waitUrl.Items(max)
 	r := make([]string, 0)
@@ -125,6 +129,7 @@ func GetUrlForWaitUrl(max int) []string {
 //从待爬取表中删除已经爬取完成的URL
 func RemoveForWaitUrl(url string) {
 	wDB.lock.Lock()
+	defer wDB.waitUrl.Close()
 	defer wDB.lock.Unlock()
 	//key := utils.Md5(url)
 	key := url
@@ -134,6 +139,7 @@ func RemoveForWaitUrl(url string) {
 
 func GetDBLength() {
 	wDB.lock.Lock()
+	defer wDB.waitUrl.Close()
 	defer wDB.lock.Unlock()
 	fmt.Println(len(wDB.waitUrl.Items(-1)))
 }

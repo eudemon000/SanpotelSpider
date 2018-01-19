@@ -29,7 +29,17 @@ func Parser(url string, urls chan interface{}) {
 		Timeout : 5 * time.Second,
 	}
 
-	resp, _ := c.Get(url)
+	resp, err := c.Get(url)
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+	if err != nil {
+		n := NextUrl{}
+		n.ResultUrl = []string{}
+		n.FinishUrl = url
+		urls <- n
+		return
+	}
 	if resp == nil {
 		next := NextUrl{}
 		next.ResultUrl = []string{}
@@ -38,6 +48,13 @@ func Parser(url string, urls chan interface{}) {
 		return
 	}
 	doc, err := goquery.NewDocumentFromResponse(resp)
+	if err != nil {
+		n := NextUrl{}
+		n.ResultUrl = []string{}
+		n.FinishUrl = url
+		urls <- n
+		return 
+	}
 	//doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println(err)
